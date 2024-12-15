@@ -62,22 +62,14 @@ class VitalsService {
   async addVital(vital: {
     patientId: string;
     type: string;
-    value: number;
+    value?: number;
+    systolic?: number;
+    diastolic?: number;
     unit: string;
   }): Promise<void> {
     console.log('Adding vital:', vital);
     
-    // Convert Fahrenheit to Celsius
-    let value = vital.value;
-    if (vital.type === 'temperature' && vital.unit === '°F') {
-      value = (vital.value - 32) * 5/9;
-    }
-
-    // Format the date with milliseconds
-    const now = new Date();
-    const effectiveDateTime = now.toISOString().split('.')[0] + '.000Z';
-    
-    const observation: any = {
+    let observation: any = {
       resourceType: 'Observation',
       status: 'final',
       category: [{
@@ -88,24 +80,79 @@ class VitalsService {
         }],
         text: 'Vital Signs'
       }],
-      code: {
-        coding: [{
-          system: 'http://loinc.org',
-          code: '8331-1'
-        }],
-        text: 'Temperature Oral'
-      },
       subject: {
         reference: `Patient/${vital.patientId}`
       },
-      effectiveDateTime: effectiveDateTime,
-      valueQuantity: {
-        value: Number(value.toFixed(1)),
-        unit: 'degC',
-        system: 'http://unitsofmeasure.org',
-        code: 'Cel'
-      }
+      effectiveDateTime: new Date().toISOString().split('.')[0] + '.000Z'
     };
+
+    if (vital.type === 'blood-pressure') {
+      observation = {
+        ...observation,
+        code: {
+          coding: [{
+            system: 'http://loinc.org',
+            code: '85354-9',
+            display: 'Blood pressure panel'
+          }]
+        },
+        component: [
+          {
+            code: {
+              coding: [{
+                system: 'http://loinc.org',
+                code: '8480-6',
+                display: 'Systolic blood pressure'
+              }]
+            },
+            valueQuantity: {
+              value: vital.systolic,
+              unit: 'mmHg',
+              system: 'http://unitsofmeasure.org',
+              code: 'mm[Hg]'
+            }
+          },
+          {
+            code: {
+              coding: [{
+                system: 'http://loinc.org',
+                code: '8462-4',
+                display: 'Diastolic blood pressure'
+              }]
+            },
+            valueQuantity: {
+              value: vital.diastolic,
+              unit: 'mmHg',
+              system: 'http://unitsofmeasure.org',
+              code: 'mm[Hg]'
+            }
+          }
+        ]
+      };
+    } else {
+      // Handle temperature
+      let value = vital.value;
+      if (vital.type === 'temperature' && vital.unit === '°F') {
+        value = (vital.value - 32) * 5/9;
+      }
+
+      observation = {
+        ...observation,
+        code: {
+          coding: [{
+            system: 'http://loinc.org',
+            code: '8331-1'
+          }],
+          text: 'Temperature Oral'
+        },
+        valueQuantity: {
+          value: Number(value?.toFixed(1)),
+          unit: 'degC',
+          system: 'http://unitsofmeasure.org',
+          code: 'Cel'
+        }
+      };
+    }
 
     const maxRetries = 3;
     let attempt = 0;

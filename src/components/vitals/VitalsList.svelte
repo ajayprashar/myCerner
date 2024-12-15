@@ -40,7 +40,19 @@
       if ($authStore.patientId) {
         console.log('Fetching vitals for patient:', $authStore.patientId);
         vitals = await vitalsService.getPatientVitals($authStore.patientId);
-        console.log('Vitals data:', vitals);
+        
+        // Add these debug logs
+        console.log('Total vitals loaded:', vitals.length);
+        console.log('Temperature vitals:', vitals.filter(v => v.code?.coding?.some(c => c.code === '8331-1')).length);
+        console.log('Blood pressure vitals:', vitals.filter(v => v.code?.coding?.some(c => c.code === '85354-9')).length);
+        console.log('Heart rate vitals:', vitals.filter(v => v.code?.coding?.some(c => c.code === '8867-4')).length);
+        console.log('Respiratory vitals:', vitals.filter(v => v.code?.coding?.some(c => c.code === '9279-1')).length);
+        console.log('O2 vitals:', vitals.filter(v => v.code?.coding?.some(c => c.code === '59408-5')).length);
+        
+        // Log a sample vital to check its structure
+        if (vitals.length > 0) {
+          console.log('Sample vital structure:', vitals[0]);
+        }
       }
     } catch (e) {
       console.error('Error loading vitals:', e);
@@ -60,22 +72,47 @@
         return;
       }
 
-      console.log('Submitting vital:', {
-        patientId: $authStore.patientId,
-        type: newVital.type,
-        value: parseFloat(newVital.value),
-        unit: selectedType.unit
-      });
+      if (newVital.type === 'blood-pressure') {
+        if (!newVital.systolic || !newVital.diastolic) {
+          error = 'Both systolic and diastolic values are required';
+          return;
+        }
 
-      await vitalsService.addVital({
-        patientId: $authStore.patientId,
-        type: newVital.type,
-        value: parseFloat(newVital.value),
-        unit: selectedType.unit
-      });
+        console.log('Submitting blood pressure:', {
+          patientId: $authStore.patientId,
+          type: newVital.type,
+          systolic: parseFloat(newVital.systolic),
+          diastolic: parseFloat(newVital.diastolic),
+          unit: selectedType.unit
+        });
+
+        await vitalsService.addVital({
+          patientId: $authStore.patientId,
+          type: newVital.type,
+          systolic: parseFloat(newVital.systolic),
+          diastolic: parseFloat(newVital.diastolic),
+          unit: selectedType.unit
+        });
+      } else {
+        console.log('Submitting vital:', {
+          patientId: $authStore.patientId,
+          type: newVital.type,
+          value: parseFloat(newVital.value),
+          unit: selectedType.unit
+        });
+
+        await vitalsService.addVital({
+          patientId: $authStore.patientId,
+          type: newVital.type,
+          value: parseFloat(newVital.value),
+          unit: selectedType.unit
+        });
+      }
 
       // Reset form and reload vitals
       newVital.value = '';
+      newVital.systolic = '';
+      newVital.diastolic = '';
       await loadVitals();
     } catch (e) {
       console.error('Error adding vital:', e);
@@ -168,78 +205,163 @@
   {:else if vitals.length === 0}
     <p>No vital signs recorded</p>
   {:else}
-    <div class="bg-white rounded shadow overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fahrenheit</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          {#each vitals as vital}
-            <tr class="hover:bg-gray-50">
-              <td class="px-4 py-2 whitespace-nowrap">
-                <div class="text-sm">
-                  {#if vital.performer && vital.performer[0]?.reference}
-                    {vital.performer[0].reference.split('/')[1]}
-                  {:else}
-                    -
-                  {/if}
-                </div>
-              </td>
-              <td class="px-4 py-2 whitespace-nowrap">
-                <div class="text-sm">
-                  {#if vital.performer && vital.performer[0]?.reference}
-                    {vital.performer[0].reference.split('/')[0]}
-                  {:else}
-                    -
-                  {/if}
-                </div>
-              </td>
-              <td class="px-4 py-2 whitespace-nowrap">
-                <div class="font-medium text-gray-900">{vital.code?.text || 'Unknown Measurement'}</div>
-              </td>
-              <td class="px-4 py-2 whitespace-nowrap">
-                <div class="text-sm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <!-- Temperature Card -->
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold text-primary mb-3">Temperature</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="text-xs text-gray-500 border-b">
+                <th class="pb-2 text-left">Value</th>
+                <th class="pb-2 text-left">Date</th>
+                <th class="pb-2 text-right">User</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '8331-1')) as vital}
+                <tr class="hover:bg-gray-50">
+                  <td class="py-2 font-medium">
+                    {#if vital.valueQuantity}
+                      {vital.valueQuantity.value}°C
+                      <span class="text-gray-500 text-sm">
+                        ({(vital.valueQuantity.value * 9/5 + 32).toFixed(1)}°F)
+                      </span>
+                    {/if}
+                  </td>
+                  <td class="py-2 text-sm text-gray-600">
+                    {new Date(vital.effectiveDateTime).toLocaleString()}
+                  </td>
+                  <td class="py-2 text-sm text-gray-600 text-right">
+                    {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Blood Pressure & Heart Rate Card -->
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold text-primary mb-3">Blood Pressure & Heart Rate</h3>
+        
+        <!-- Blood Pressure Section -->
+        <div class="mb-4">
+          <h4 class="text-sm font-medium text-gray-600 mb-2">Blood Pressure</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="text-xs text-gray-500 border-b">
+                  <th class="pb-2 text-left">Value</th>
+                  <th class="pb-2 text-left">Date</th>
+                  <th class="pb-2 text-right">User</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '85354-9')) as vital}
+                  <tr class="hover:bg-gray-50">
+                    <td class="py-2 font-medium">
+                      {#if vital.component && vital.component.length >= 2 && vital.component[0]?.valueQuantity?.value && vital.component[1]?.valueQuantity?.value}
+                        {vital.component[0].valueQuantity.value}/{vital.component[1].valueQuantity.value} mmHg
+                      {:else}
+                        No value recorded
+                      {/if}
+                    </td>
+                    <td class="py-2 text-sm text-gray-600">
+                      {new Date(vital.effectiveDateTime).toLocaleString()}
+                    </td>
+                    <td class="py-2 text-sm text-gray-600 text-right">
+                      {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Heart Rate Section -->
+        <div>
+          <h4 class="text-sm font-medium text-gray-600 mb-2">Heart Rate</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="text-xs text-gray-500 border-b">
+                  <th class="pb-2 text-left">Value</th>
+                  <th class="pb-2 text-left">Date</th>
+                  <th class="pb-2 text-right">User</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '8867-4')) as vital}
+                  <tr class="hover:bg-gray-50">
+                    <td class="py-2 font-medium">
+                      {#if vital.valueQuantity}
+                        {vital.valueQuantity.value} bpm
+                      {/if}
+                    </td>
+                    <td class="py-2 text-sm text-gray-600">
+                      {new Date(vital.effectiveDateTime).toLocaleString()}
+                    </td>
+                    <td class="py-2 text-sm text-gray-600 text-right">
+                      {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Respiratory Rate Card -->
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold text-primary mb-3">Respiratory Rate</h3>
+        <div class="space-y-2">
+          {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '9279-1')) as vital}
+            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+              <div>
+                <span class="font-medium">
                   {#if vital.valueQuantity}
-                    {vital.valueQuantity.value} {vital.valueQuantity.unit}
-                  {:else}
-                    No value recorded
+                    {vital.valueQuantity.value} /min
                   {/if}
-                </div>
-              </td>
-              <td class="px-4 py-2 whitespace-nowrap">
-                <div class="text-sm">
-                  {#if vital.valueQuantity && vital.valueQuantity.unit === 'degC'}
-                    {(vital.valueQuantity.value * 9/5 + 32).toFixed(1)}°F
-                  {:else}
-                    -
-                  {/if}
-                </div>
-              </td>
-              <td class="px-4 py-2 whitespace-nowrap">
-                <div class="text-sm text-gray-600">
+                </span>
+                <div class="text-sm text-gray-500">
                   {new Date(vital.effectiveDateTime).toLocaleString()}
                 </div>
-              </td>
-              <td class="px-4 py-2 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                  {vital.status === 'final' ? 'bg-green-100 text-green-800' : 
-                   vital.status === 'preliminary' ? 'bg-yellow-100 text-yellow-800' : 
-                   'bg-gray-100 text-gray-800'}">
-                  {vital.status}
-                </span>
-              </td>
-            </tr>
+              </div>
+              <div class="text-sm text-gray-500">
+                {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+              </div>
+            </div>
           {/each}
-        </tbody>
-      </table>
+        </div>
+      </div>
+
+      <!-- O2 Saturation Card -->
+      <div class="bg-white rounded-lg shadow p-4">
+        <h3 class="text-lg font-semibold text-primary mb-3">Oxygen Saturation</h3>
+        <div class="space-y-2">
+          {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '59408-5')) as vital}
+            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
+              <div>
+                <span class="font-medium">
+                  {#if vital.valueQuantity}
+                    {vital.valueQuantity.value}%
+                  {/if}
+                </span>
+                <div class="text-sm text-gray-500">
+                  {new Date(vital.effectiveDateTime).toLocaleString()}
+                </div>
+              </div>
+              <div class="text-sm text-gray-500">
+                {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
     </div>
   {/if}
 </div> 
