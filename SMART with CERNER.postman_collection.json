@@ -1,0 +1,320 @@
+{
+	"info": {
+		"_postman_id": "db7127ea-cfae-4b56-bf43-ed564802ec80",
+		"name": "SMART with CERNER",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11401600"
+	},
+	"item": [
+		{
+			"name": "well-known",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{cerner_base_url}}{{tenent_id}}/.well-known/smart-configuration",
+					"host": [
+						"{{cerner_base_url}}{{tenent_id}}"
+					],
+					"path": [
+						".well-known",
+						"smart-configuration"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Patient Details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{cerner_base_url}}{{tenent_id}}/Patient/12724065",
+					"host": [
+						"{{cerner_base_url}}{{tenent_id}}"
+					],
+					"path": [
+						"Patient",
+						"12724065"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Patient vital-signs",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var template = `\r",
+							"<style type=\"text/css\">\r",
+							"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+							"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+							"    .tftable tr {background-color:#ffffff;}\r",
+							"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+							"    .tftable tr:hover {background-color:#e0ffff;}\r",
+							"</style>\r",
+							"\r",
+							"<table class=\"tftable\" border=\"1\">\r",
+							"    <tr>\r",
+							"        <th>ID</th>\r",
+							"        <th>Type</th>\r",
+							"        <th>Category</th>\r",
+							"        <th>Code</th>\r",
+							"        <th>Effective Date Time</th>\r",
+							"        <th>Value Quantity</th>\r",
+							"    </tr>\r",
+							"    \r",
+							"    {{#each response.entry}}\r",
+							"        <tr>\r",
+							"            <td>{{resource.id}}</td>\r",
+							"            <td>{{resource.type}}</td>\r",
+							"            <td>{{resource.category.[0].coding.[0].display}}</td>\r",
+							"            <td>{{resource.code.coding.[0].display}}</td>\r",
+							"            <td>{{resource.effectiveDateTime}}</td>\r",
+							"            <td>{{resource.valueQuantity.extension.[0].valueQuantity.value}} {{resource.valueQuantity.extension.[0].valueQuantity.unit}}</td>\r",
+							"        </tr>\r",
+							"    {{/each}}\r",
+							"</table>\r",
+							"`;\r",
+							"\r",
+							"function constructVisualizerPayload() {\r",
+							"    return {response: pm.response.json()}\r",
+							"}\r",
+							"\r",
+							"pm.visualizer.set(template, constructVisualizerPayload());"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{cerner_base_url}}{{tenent_id}}/Observation?category=vital-signs&patient=12457981",
+					"host": [
+						"{{cerner_base_url}}{{tenent_id}}"
+					],
+					"path": [
+						"Observation"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "vital-signs"
+						},
+						{
+							"key": "patient",
+							"value": "12457981"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create vital-signs for Patient",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"resourceType\": \"Observation\",\r\n  \"status\": \"final\",\r\n  \"category\": [\r\n    {\r\n      \"coding\": [\r\n        {\r\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\r\n          \"code\": \"vital-signs\",\r\n          \"display\": \"Vital Signs\"\r\n        }\r\n      ],\r\n      \"text\": \"Vital Signs\"\r\n    }\r\n  ],\r\n  \"code\": {\r\n    \"coding\": [\r\n      {\r\n        \"system\": \"http://loinc.org\",\r\n        \"code\": \"8331-1\"\r\n      }\r\n    ],\r\n    \"text\": \"Temperature Oral\"\r\n  },\r\n  \"subject\": {\r\n    \"reference\": \"Patient/12457981\"\r\n  },\r\n  \"effectiveDateTime\": \"2024-12-10T19:21:00.000Z\",\r\n  \"valueQuantity\": {\r\n    \"value\": 37.7,\r\n    \"unit\": \"degC\",\r\n    \"system\": \"http://unitsofmeasure.org\",\r\n    \"code\": \"Cel\"\r\n  }\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{cerner_base_url}}{{tenent_id}}/Observation?category=vital-signs&patient=12457981",
+					"host": [
+						"{{cerner_base_url}}{{tenent_id}}"
+					],
+					"path": [
+						"Observation"
+					],
+					"query": [
+						{
+							"key": "category",
+							"value": "vital-signs"
+						},
+						{
+							"key": "patient",
+							"value": "12457981"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "body",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "{{authorization_endpoint_url}}{{audience_url}}{{issuer}}{{launch_token_parameter}}",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "{{token_endpoint_url}}",
+				"type": "string"
+			},
+			{
+				"key": "redirect_uri",
+				"value": "{{callback_url}}",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "authorization_code_with_pkce",
+				"type": "string"
+			},
+			{
+				"key": "state",
+				"value": "{{state}}",
+				"type": "string"
+			},
+			{
+				"key": "scope",
+				"value": "{{scope}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{client_id}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:5173",
+			"type": "string"
+		},
+		{
+			"key": "client_id",
+			"value": "52d68728-011e-46d8-9f37-0dcc2bc41bfc",
+			"type": "string"
+		},
+		{
+			"key": "tenent_id",
+			"value": "ec2458f2-1e24-41c8-b71b-0e701af7583d",
+			"type": "string"
+		},
+		{
+			"key": "application_id",
+			"value": "34347926-e025-47d8-8a57-37a9046c32f2",
+			"type": "string"
+		},
+		{
+			"key": "cerner_base_url",
+			"value": "https://fhir-ehr-code.cerner.com/r4",
+			"type": "string"
+		},
+		{
+			"key": "authorization_endpoint_url",
+			"value": "https://authorization.cerner.com/tenants/ec2458f2-1e24-41c8-b71b-0e701af7583d/protocols/oauth2/profiles/smart-v1/personas/provider/authorize",
+			"type": "string"
+		},
+		{
+			"key": "token_endpoint_url",
+			"value": "https://authorization.cerner.com/tenants/ec2458f2-1e24-41c8-b71b-0e701af7583d/hosts/api.cernermillennium.com/protocols/oauth2/profiles/smart-v1/token",
+			"type": "string"
+		},
+		{
+			"key": "scope",
+			"value": "openid fhirUser launch user/Patient.read user/Observation.read user/Observation.write",
+			"type": "string"
+		},
+		{
+			"key": "state",
+			"value": "123456",
+			"type": "string"
+		},
+		{
+			"key": "callback_url",
+			"value": "http://127.0.0.1:5173",
+			"type": "string"
+		},
+		{
+			"key": "audience_url",
+			"value": "?aud=",
+			"type": "string"
+		},
+		{
+			"key": "launch_token_parameter",
+			"value": "&launch=13b0e993-e326-4e3e-a71c-b0dd7531c007",
+			"type": "string"
+		},
+		{
+			"key": "issuer",
+			"value": "https://fhir-ehr-code.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d",
+			"type": "string"
+		},
+		{
+			"key": "scopeOLD",
+			"value": "openid fhirUser launch offline_access user/Patient.read",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}
