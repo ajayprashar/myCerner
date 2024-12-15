@@ -12,6 +12,8 @@
   let newVital = {
     type: 'temperature',
     value: '',
+    systolic: '',
+    diastolic: '',
     unit: '°F'
   };
 
@@ -23,9 +25,14 @@
     { id: 'oxygen-saturation', name: 'Oxygen Saturation', unit: '%' }
   ];
 
+  $: showBPFields = newVital.type === 'blood-pressure';
+
   onMount(async () => {
     console.log('VitalsList mounted');
     await loadVitals();
+    if (vitals.length > 0) {
+      console.log('Sample vital entry:', JSON.stringify(vitals[0], null, 2));
+    }
   });
 
   async function loadVitals() {
@@ -96,17 +103,48 @@
         </select>
       </div>
       
-      <div>
-        <label for="vital-value" class="block text-sm font-medium text-gray-700 mb-1">Value</label>
-        <input
-          id="vital-value"
-          type="number"
-          bind:value={newVital.value}
-          required
-          step="0.1"
-          class="w-full rounded border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
-        />
-      </div>
+      {#if showBPFields}
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label for="vital-systolic" class="block text-sm font-medium text-gray-700 mb-1">
+              Systolic (mmHg)
+            </label>
+            <input
+              id="vital-systolic"
+              type="number"
+              bind:value={newVital.systolic}
+              required
+              class="w-full rounded border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+            />
+          </div>
+          <div>
+            <label for="vital-diastolic" class="block text-sm font-medium text-gray-700 mb-1">
+              Diastolic (mmHg)
+            </label>
+            <input
+              id="vital-diastolic"
+              type="number"
+              bind:value={newVital.diastolic}
+              required
+              class="w-full rounded border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+            />
+          </div>
+        </div>
+      {:else}
+        <div>
+          <label for="vital-value" class="block text-sm font-medium text-gray-700 mb-1">
+            Value ({vitalTypes.find(t => t.id === newVital.type)?.unit || ''})
+          </label>
+          <input
+            id="vital-value"
+            type="number"
+            bind:value={newVital.value}
+            required
+            step="0.1"
+            class="w-full rounded border-gray-300 shadow-sm focus:border-primary focus:ring-primary"
+          />
+        </div>
+      {/if}
 
       <div class="flex items-end">
         <button
@@ -134,6 +172,8 @@
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fahrenheit</th>
@@ -144,6 +184,24 @@
         <tbody class="bg-white divide-y divide-gray-200">
           {#each vitals as vital}
             <tr class="hover:bg-gray-50">
+              <td class="px-4 py-2 whitespace-nowrap">
+                <div class="text-sm">
+                  {#if vital.performer && vital.performer[0]?.reference}
+                    {vital.performer[0].reference.split('/')[1]}
+                  {:else}
+                    -
+                  {/if}
+                </div>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <div class="text-sm">
+                  {#if vital.performer && vital.performer[0]?.reference}
+                    {vital.performer[0].reference.split('/')[0]}
+                  {:else}
+                    -
+                  {/if}
+                </div>
+              </td>
               <td class="px-4 py-2 whitespace-nowrap">
                 <div class="font-medium text-gray-900">{vital.code?.text || 'Unknown Measurement'}</div>
               </td>

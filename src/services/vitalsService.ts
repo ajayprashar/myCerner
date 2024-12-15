@@ -71,13 +71,8 @@ class VitalsService {
     let value = vital.value;
     if (vital.type === 'temperature' && vital.unit === '°F') {
       value = (vital.value - 32) * 5/9;
-      
-      // Validate temperature range (35-42°C is normal human range)
-      if (value < 35 || value > 42) {
-        throw new Error('Temperature must be between 95°F and 107.6°F');
-      }
     }
-    
+
     // Format the date with milliseconds
     const now = new Date();
     const effectiveDateTime = now.toISOString().split('.')[0] + '.000Z';
