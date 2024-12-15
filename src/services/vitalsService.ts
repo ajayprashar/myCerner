@@ -129,10 +129,56 @@ class VitalsService {
           }
         ]
       };
-    } else {
-      // Handle temperature
+    } else if (vital.type === 'heart-rate') {
+      observation = {
+        ...observation,
+        code: {
+          coding: [{
+            system: 'https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72',
+            code: '703540',
+            display: 'Heart Rate',
+            userSelected: true
+          }],
+          text: 'Heart Rate'
+        },
+        valueQuantity: {
+          value: Number(vital.value?.toFixed(0)),
+          unit: '{beats}/min',
+          system: 'http://unitsofmeasure.org',
+          code: '{beats}/min'
+        }
+      };
+    } else if (vital.type === 'respiratory-rate') {
+      observation = {
+        ...observation,
+        code: {
+          coding: [{
+            system: 'https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72',
+            code: '703537',
+            display: 'Respiratory Rate',
+            userSelected: true
+          }],
+          text: 'Respiratory Rate'
+        },
+        valueQuantity: {
+          value: Number(vital.value?.toFixed(0)),
+          unit: '/min',
+          system: 'http://unitsofmeasure.org',
+          code: '/min',
+          extension: [{
+            url: 'http://hl7.org/fhir/StructureDefinition/iso21090-PQ-translation',
+            valueQuantity: {
+              value: Number(vital.value?.toFixed(0)),
+              unit: '/min',
+              system: 'http://unitsofmeasure.org',
+              code: '/min'
+            }
+          }]
+        }
+      };
+    } else if (vital.type === 'temperature') {
       let value = vital.value;
-      if (vital.type === 'temperature' && vital.unit === '°F') {
+      if (vital.unit === '°F') {
         value = (vital.value - 32) * 5/9;
       }
 
@@ -140,8 +186,10 @@ class VitalsService {
         ...observation,
         code: {
           coding: [{
-            system: 'http://loinc.org',
-            code: '8331-1'
+            system: 'https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72',
+            code: '703558',
+            display: 'Temperature Oral',
+            userSelected: true
           }],
           text: 'Temperature Oral'
         },
@@ -149,7 +197,39 @@ class VitalsService {
           value: Number(value?.toFixed(1)),
           unit: 'degC',
           system: 'http://unitsofmeasure.org',
-          code: 'Cel'
+          code: 'Cel',
+          extension: [{
+            url: 'http://hl7.org/fhir/StructureDefinition/iso21090-PQ-translation',
+            valueQuantity: {
+              value: Number(vital.value?.toFixed(1)),
+              unit: 'degF',
+              system: 'http://unitsofmeasure.org',
+              code: '[degF]'
+            }
+          }]
+        }
+      };
+    } else {
+      // Handle oxygen saturation
+      let value = vital.value;
+      if (vital.type === 'oxygen-saturation' && vital.unit === '%') {
+        value = value / 100;
+      }
+
+      observation = {
+        ...observation,
+        code: {
+          coding: [{
+            system: 'http://loinc.org',
+            code: '59408-5',
+            display: 'Oxygen saturation'
+          }]
+        },
+        valueQuantity: {
+          value: Number(value?.toFixed(2)),
+          unit: '%',
+          system: 'http://unitsofmeasure.org',
+          code: '%'
         }
       };
     }

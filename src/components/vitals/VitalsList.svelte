@@ -221,32 +221,32 @@
   {:else}
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- Temperature Card -->
-      <div id="temperature" class="bg-white rounded-lg shadow p-4">
-        <h3 class="text-lg font-semibold text-primary mb-3">Temperature</h3>
-        <div class="overflow-x-auto">
+      <div id="temperature" class="bg-white rounded-lg shadow p-3">
+        <h3 class="text-base font-semibold text-primary mb-2">Temperature</h3>
+        <div class="overflow-y-auto max-h-[300px] overflow-x-auto">
           <table class="w-full">
             <thead>
-              <tr class="text-xs text-gray-500 border-b">
-                <th class="pb-2 text-left">Value</th>
-                <th class="pb-2 text-left">Date</th>
-                <th class="pb-2 text-right">User</th>
+              <tr class="text-xs text-gray-500 border-b sticky top-0 bg-white">
+                <th class="pb-1 text-left">Value</th>
+                <th class="pb-1 text-left">Date</th>
+                <th class="pb-1 text-right">User</th>
               </tr>
             </thead>
             <tbody class="divide-y">
               {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '8331-1')) as vital}
-                <tr class="hover:bg-gray-50">
-                  <td class="py-2 font-medium">
-                    {#if vital.valueQuantity}
+                <tr class="hover:bg-gray-50 text-sm">
+                  <td class="py-1">
+                    <span class="font-medium text-base">
                       {vital.valueQuantity.value}°C
-                      <span class="text-gray-500 text-sm">
-                        ({(vital.valueQuantity.value * 9/5 + 32).toFixed(1)}°F)
-                      </span>
-                    {/if}
+                    </span>
+                    <span class="text-gray-500 text-xs">
+                      ({(vital.valueQuantity.value * 9/5 + 32).toFixed(1)}°F)
+                    </span>
                   </td>
-                  <td class="py-2 text-sm text-gray-600">
+                  <td class="py-1 text-xs text-gray-600">
                     {new Date(vital.effectiveDateTime).toLocaleString()}
                   </td>
-                  <td class="py-2 text-sm text-gray-600 text-right">
+                  <td class="py-1 text-xs text-gray-600 text-right">
                     {#if vital.performer?.[0]?.reference}
                       {vital.performer[0].reference.split('/')[1]}
                       <span class="text-xs text-gray-400 ml-1">
@@ -267,35 +267,37 @@
       </div>
 
       <!-- Blood Pressure & Heart Rate Card -->
-      <div id="blood-pressure" class="bg-white rounded-lg shadow p-4">
-        <h3 class="text-lg font-semibold text-primary mb-3">Blood Pressure & Heart Rate</h3>
+      <div id="blood-pressure" class="bg-white rounded-lg shadow p-3">
+        <h3 class="text-base font-semibold text-primary mb-2">Blood Pressure & Heart Rate</h3>
         
         <!-- Blood Pressure Section -->
         <div class="mb-4">
-          <h4 class="text-sm font-medium text-gray-600 mb-2">Blood Pressure</h4>
-          <div class="overflow-x-auto">
+          <h4 class="text-xs font-medium text-gray-600 mb-1">Blood Pressure</h4>
+          <div class="overflow-y-auto max-h-[300px] overflow-x-auto">
             <table class="w-full">
               <thead>
-                <tr class="text-xs text-gray-500 border-b">
-                  <th class="pb-2 text-left">Value</th>
-                  <th class="pb-2 text-left">Date</th>
-                  <th class="pb-2 text-right">User</th>
+                <tr class="text-xs text-gray-500 border-b sticky top-0 bg-white">
+                  <th class="pb-1 text-left">Value</th>
+                  <th class="pb-1 text-left">Date</th>
+                  <th class="pb-1 text-right">User</th>
                 </tr>
               </thead>
               <tbody class="divide-y">
                 {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '85354-9')) as vital}
-                  <tr class="hover:bg-gray-50">
-                    <td class="py-2 font-medium">
-                      {#if vital.component && vital.component.length >= 2 && vital.component[0]?.valueQuantity?.value && vital.component[1]?.valueQuantity?.value}
-                        {vital.component[0].valueQuantity.value}/{vital.component[1].valueQuantity.value} mmHg
-                      {:else}
-                        No value recorded
-                      {/if}
+                  <tr class="hover:bg-gray-50 text-sm">
+                    <td class="py-1">
+                      <span class="font-medium text-base">
+                        {#if vital.component && vital.component.length >= 2 && vital.component[0]?.valueQuantity?.value && vital.component[1]?.valueQuantity?.value}
+                          {vital.component[0].valueQuantity.value}/{vital.component[1].valueQuantity.value} mmHg
+                        {:else}
+                          No value recorded
+                        {/if}
+                      </span>
                     </td>
-                    <td class="py-2 text-sm text-gray-600">
+                    <td class="py-1 text-xs text-gray-600">
                       {new Date(vital.effectiveDateTime).toLocaleString()}
                     </td>
-                    <td class="py-2 text-sm text-gray-600 text-right">
+                    <td class="py-1 text-xs text-gray-600 text-right">
                       {#if vital.performer?.[0]?.reference}
                         {vital.performer[0].reference.split('/')[1]}
                         <span class="text-xs text-gray-400 ml-1">
@@ -314,28 +316,30 @@
 
         <!-- Heart Rate Section -->
         <div>
-          <h4 class="text-sm font-medium text-gray-600 mb-2">Heart Rate</h4>
-          <div class="overflow-x-auto">
+          <h4 class="text-xs font-medium text-gray-600 mb-1">Heart Rate</h4>
+          <div class="overflow-y-auto max-h-[300px] overflow-x-auto">
             <table class="w-full">
               <thead>
-                <tr class="text-xs text-gray-500 border-b">
-                  <th class="pb-2 text-left">Value</th>
-                  <th class="pb-2 text-left">Date</th>
-                  <th class="pb-2 text-right">User</th>
+                <tr class="text-xs text-gray-500 border-b sticky top-0 bg-white">
+                  <th class="pb-1 text-left">Value</th>
+                  <th class="pb-1 text-left">Date</th>
+                  <th class="pb-1 text-right">User</th>
                 </tr>
               </thead>
               <tbody class="divide-y">
-                {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '8867-4')) as vital}
-                  <tr class="hover:bg-gray-50">
-                    <td class="py-2 font-medium">
-                      {#if vital.valueQuantity}
-                        {vital.valueQuantity.value} bpm
-                      {/if}
+                {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '8867-4' || c.code === '703540')) as vital}
+                  <tr class="hover:bg-gray-50 text-sm">
+                    <td class="py-1">
+                      <span class="font-medium text-base">
+                        {#if vital.valueQuantity}
+                          {vital.valueQuantity.value} bpm
+                        {/if}
+                      </span>
                     </td>
-                    <td class="py-2 text-sm text-gray-600">
+                    <td class="py-1 text-xs text-gray-600">
                       {new Date(vital.effectiveDateTime).toLocaleString()}
                     </td>
-                    <td class="py-2 text-sm text-gray-600 text-right">
+                    <td class="py-1 text-xs text-gray-600 text-right">
                       {#if vital.performer?.[0]?.reference}
                         {vital.performer[0].reference.split('/')[1]}
                         <span class="text-xs text-gray-400 ml-1">
@@ -357,33 +361,44 @@
       </div>
 
       <!-- Respiratory Rate Card -->
-      <div id="respiratory" class="bg-white rounded-lg shadow p-4">
-        <h3 class="text-lg font-semibold text-primary mb-3">Respiratory Rate</h3>
-        <div class="space-y-2">
-          {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '9279-1')) as vital}
-            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
-              <div>
-                <span class="font-medium">
-                  {#if vital.valueQuantity}
-                    {vital.valueQuantity.value} /min
-                  {/if}
-                </span>
-                <div class="text-sm text-gray-500">
-                  {new Date(vital.effectiveDateTime).toLocaleString()}
-                </div>
-              </div>
-              <div class="text-sm text-gray-500">
-                {#if vital.performer?.[0]?.reference}
-                  {vital.performer[0].reference.split('/')[1]}
-                  <span class="text-xs text-gray-400 ml-1">
-                    ({vital.performer[0].reference.split('/')[0]})
-                  </span>
-                {:else}
-                  -
-                {/if}
-              </div>
-            </div>
-          {/each}
+      <div id="respiratory" class="bg-white rounded-lg shadow p-3">
+        <h3 class="text-base font-semibold text-primary mb-2">Respiratory Rate</h3>
+        <div class="overflow-y-auto max-h-[300px] overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="text-xs text-gray-500 border-b sticky top-0 bg-white">
+                <th class="pb-1 text-left">Value</th>
+                <th class="pb-1 text-left">Date</th>
+                <th class="pb-1 text-right">User</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '9279-1' || c.code === '703537')) as vital}
+                <tr class="hover:bg-gray-50 text-sm">
+                  <td class="py-1">
+                    <span class="font-medium text-base">
+                      {#if vital.valueQuantity}
+                        {vital.valueQuantity.value} /min
+                      {/if}
+                    </span>
+                  </td>
+                  <td class="py-1 text-xs text-gray-600">
+                    {new Date(vital.effectiveDateTime).toLocaleString()}
+                  </td>
+                  <td class="py-1 text-xs text-gray-600 text-right">
+                    {#if vital.performer?.[0]?.reference}
+                      {vital.performer[0].reference.split('/')[1]}
+                      <span class="text-xs text-gray-400 ml-1">
+                        ({vital.performer[0].reference.split('/')[0]})
+                      </span>
+                    {:else}
+                      -
+                    {/if}
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
         </div>
         <div class="mt-4 text-right">
           <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
@@ -391,33 +406,44 @@
       </div>
 
       <!-- O2 Saturation Card -->
-      <div id="oxygen" class="bg-white rounded-lg shadow p-4">
-        <h3 class="text-lg font-semibold text-primary mb-3">Oxygen Saturation</h3>
-        <div class="space-y-2">
-          {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '59408-5')) as vital}
-            <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
-              <div>
-                <span class="font-medium">
-                  {#if vital.valueQuantity}
-                    {vital.valueQuantity.value}%
-                  {/if}
-                </span>
-                <div class="text-sm text-gray-500">
-                  {new Date(vital.effectiveDateTime).toLocaleString()}
-                </div>
-              </div>
-              <div class="text-sm text-gray-500">
-                {#if vital.performer?.[0]?.reference}
-                  {vital.performer[0].reference.split('/')[1]}
-                  <span class="text-xs text-gray-400 ml-1">
-                    ({vital.performer[0].reference.split('/')[0]})
-                  </span>
-                {:else}
-                  -
-                {/if}
-              </div>
-            </div>
-          {/each}
+      <div id="oxygen" class="bg-white rounded-lg shadow p-3">
+        <h3 class="text-base font-semibold text-primary mb-2">Oxygen Saturation</h3>
+        <div class="overflow-y-auto max-h-[300px] overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="text-xs text-gray-500 border-b sticky top-0 bg-white">
+                <th class="pb-1 text-left">Value</th>
+                <th class="pb-1 text-left">Date</th>
+                <th class="pb-1 text-right">User</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y">
+              {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '59408-5')) as vital}
+                <tr class="hover:bg-gray-50 text-sm">
+                  <td class="py-1">
+                    <span class="font-medium text-base">
+                      {#if vital.valueQuantity}
+                        {vital.valueQuantity.value}%
+                      {/if}
+                    </span>
+                  </td>
+                  <td class="py-1 text-xs text-gray-600">
+                    {new Date(vital.effectiveDateTime).toLocaleString()}
+                  </td>
+                  <td class="py-1 text-xs text-gray-600 text-right">
+                    {#if vital.performer?.[0]?.reference}
+                      {vital.performer[0].reference.split('/')[1]}
+                      <span class="text-xs text-gray-400 ml-1">
+                        ({vital.performer[0].reference.split('/')[0]})
+                      </span>
+                    {:else}
+                      -
+                    {/if}
+                  </td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
         </div>
         <div class="mt-4 text-right">
           <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
