@@ -136,6 +136,7 @@
           <tr>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fahrenheit</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
           </tr>
@@ -152,6 +153,15 @@
                     {vital.valueQuantity.value} {vital.valueQuantity.unit}
                   {:else}
                     No value recorded
+                  {/if}
+                </div>
+              </td>
+              <td class="px-4 py-2 whitespace-nowrap">
+                <div class="text-sm">
+                  {#if vital.valueQuantity && vital.valueQuantity.unit === 'degC'}
+                    {(vital.valueQuantity.value * 9/5 + 32).toFixed(1)}°F
+                  {:else}
+                    -
                   {/if}
                 </div>
               </td>
