@@ -194,6 +194,20 @@
     </form>
   </div>
 
+  <!-- After the Add Vital Form and before the grid -->
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-lg font-semibold">Vitals History</h2>
+    <div class="flex gap-4 text-sm">
+      <a href="#temperature" class="text-primary hover:text-primary-dark">Temperature</a>
+      <span class="text-gray-300">|</span>
+      <a href="#blood-pressure" class="text-primary hover:text-primary-dark">Blood Pressure</a>
+      <span class="text-gray-300">|</span>
+      <a href="#respiratory" class="text-primary hover:text-primary-dark">Respiratory</a>
+      <span class="text-gray-300">|</span>
+      <a href="#oxygen" class="text-primary hover:text-primary-dark">O2 Saturation</a>
+    </div>
+  </div>
+
   {#if loading}
     <div class="flex justify-center">
       <div class="animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
@@ -207,7 +221,7 @@
   {:else}
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <!-- Temperature Card -->
-      <div class="bg-white rounded-lg shadow p-4">
+      <div id="temperature" class="bg-white rounded-lg shadow p-4">
         <h3 class="text-lg font-semibold text-primary mb-3">Temperature</h3>
         <div class="overflow-x-auto">
           <table class="w-full">
@@ -233,17 +247,27 @@
                     {new Date(vital.effectiveDateTime).toLocaleString()}
                   </td>
                   <td class="py-2 text-sm text-gray-600 text-right">
-                    {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                    {#if vital.performer?.[0]?.reference}
+                      {vital.performer[0].reference.split('/')[1]}
+                      <span class="text-xs text-gray-400 ml-1">
+                        ({vital.performer[0].reference.split('/')[0]})
+                      </span>
+                    {:else}
+                      -
+                    {/if}
                   </td>
                 </tr>
               {/each}
             </tbody>
           </table>
         </div>
+        <div class="mt-4 text-right">
+          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
+        </div>
       </div>
 
       <!-- Blood Pressure & Heart Rate Card -->
-      <div class="bg-white rounded-lg shadow p-4">
+      <div id="blood-pressure" class="bg-white rounded-lg shadow p-4">
         <h3 class="text-lg font-semibold text-primary mb-3">Blood Pressure & Heart Rate</h3>
         
         <!-- Blood Pressure Section -->
@@ -272,7 +296,14 @@
                       {new Date(vital.effectiveDateTime).toLocaleString()}
                     </td>
                     <td class="py-2 text-sm text-gray-600 text-right">
-                      {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                      {#if vital.performer?.[0]?.reference}
+                        {vital.performer[0].reference.split('/')[1]}
+                        <span class="text-xs text-gray-400 ml-1">
+                          ({vital.performer[0].reference.split('/')[0]})
+                        </span>
+                      {:else}
+                        -
+                      {/if}
                     </td>
                   </tr>
                 {/each}
@@ -305,7 +336,14 @@
                       {new Date(vital.effectiveDateTime).toLocaleString()}
                     </td>
                     <td class="py-2 text-sm text-gray-600 text-right">
-                      {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                      {#if vital.performer?.[0]?.reference}
+                        {vital.performer[0].reference.split('/')[1]}
+                        <span class="text-xs text-gray-400 ml-1">
+                          ({vital.performer[0].reference.split('/')[0]})
+                        </span>
+                      {:else}
+                        -
+                      {/if}
                     </td>
                   </tr>
                 {/each}
@@ -313,10 +351,13 @@
             </table>
           </div>
         </div>
+        <div class="mt-4 text-right">
+          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
+        </div>
       </div>
 
       <!-- Respiratory Rate Card -->
-      <div class="bg-white rounded-lg shadow p-4">
+      <div id="respiratory" class="bg-white rounded-lg shadow p-4">
         <h3 class="text-lg font-semibold text-primary mb-3">Respiratory Rate</h3>
         <div class="space-y-2">
           {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '9279-1')) as vital}
@@ -332,15 +373,25 @@
                 </div>
               </div>
               <div class="text-sm text-gray-500">
-                {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                {#if vital.performer?.[0]?.reference}
+                  {vital.performer[0].reference.split('/')[1]}
+                  <span class="text-xs text-gray-400 ml-1">
+                    ({vital.performer[0].reference.split('/')[0]})
+                  </span>
+                {:else}
+                  -
+                {/if}
               </div>
             </div>
           {/each}
         </div>
+        <div class="mt-4 text-right">
+          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
+        </div>
       </div>
 
       <!-- O2 Saturation Card -->
-      <div class="bg-white rounded-lg shadow p-4">
+      <div id="oxygen" class="bg-white rounded-lg shadow p-4">
         <h3 class="text-lg font-semibold text-primary mb-3">Oxygen Saturation</h3>
         <div class="space-y-2">
           {#each vitals.filter(v => v.code?.coding?.some(c => c.code === '59408-5')) as vital}
@@ -356,10 +407,20 @@
                 </div>
               </div>
               <div class="text-sm text-gray-500">
-                {vital.performer?.[0]?.reference?.split('/')?.[1] || '-'}
+                {#if vital.performer?.[0]?.reference}
+                  {vital.performer[0].reference.split('/')[1]}
+                  <span class="text-xs text-gray-400 ml-1">
+                    ({vital.performer[0].reference.split('/')[0]})
+                  </span>
+                {:else}
+                  -
+                {/if}
               </div>
             </div>
           {/each}
+        </div>
+        <div class="mt-4 text-right">
+          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
         </div>
       </div>
     </div>
