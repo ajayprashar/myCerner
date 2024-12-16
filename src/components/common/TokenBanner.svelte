@@ -71,9 +71,9 @@
 
 <div class="bg-primary text-white py-2 px-4 shadow-md">
   <div class="container mx-auto">
-    <div class="flex flex-col space-y-2">
+    <div class="flex flex-col">
       {#if patient && showBanner}
-        <div class="flex justify-between items-center">
+        <div class="flex items-center">
           <div class="flex items-center gap-4">
             <div>
               <span class="font-semibold">Patient:</span>
@@ -90,40 +90,42 @@
               </span>
             </div>
           </div>
-          {#if $authStore.userId}
-            <span class="px-2 py-1 bg-accent rounded text-sm">
-              User ID: {$authStore.userId}
-            </span>
-          {/if}
+
+          <div class="flex-grow flex justify-center items-center space-x-4">
+            <div class="flex items-center space-x-2">
+              <span class="font-semibold text-gray-300">Access Token:</span>
+              <span class="font-mono text-sm bg-primary-dark px-2 py-1 rounded text-gray-300">
+                {truncateToken($authStore.accessToken)}
+              </span>
+            </div>
+            {#if timeRemaining}
+              <div class="flex items-center space-x-2">
+                <span class="font-semibold text-gray-300">Expires in:</span>
+                <span class="font-mono text-sm bg-primary-dark px-2 py-1 rounded text-gray-300
+                  {timeRemaining === 'Expired' ? 'text-red-300' : ''}">
+                  {timeRemaining}
+                </span>
+              </div>
+            {/if}
+          </div>
+
+          <div class="flex items-center space-x-4">
+            {#if $authStore.userId}
+              <span class="px-2 py-1 bg-accent rounded text-sm">
+                User ID: {$authStore.userId}
+              </span>
+            {/if}
+            <button 
+              class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
+              on:click={handleLogout}
+            >
+              Switch Patient
+            </button>
+          </div>
         </div>
       {:else if error}
         <div class="text-red-300">Error loading patient: {error}</div>
       {/if}
-      
-      <div class="flex items-center space-x-4">
-        <div class="flex items-center space-x-2">
-          <span class="font-semibold">Access Token:</span>
-          <span class="font-mono text-sm bg-primary-dark px-2 py-1 rounded">
-            {truncateToken($authStore.accessToken)}
-          </span>
-        </div>
-        {#if timeRemaining}
-          <div class="flex items-center space-x-2">
-            <span class="font-semibold">Expires in:</span>
-            <span class="font-mono text-sm bg-primary-dark px-2 py-1 rounded 
-              {timeRemaining === 'Expired' ? 'text-red-300' : ''}">
-              {timeRemaining}
-            </span>
-          </div>
-        {/if}
-        <div class="flex-grow"></div>
-        <button 
-          class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
-          on:click={handleLogout}
-        >
-          Switch Patient
-        </button>
-      </div>
     </div>
   </div>
 </div>
