@@ -7,6 +7,7 @@
   let vitals: Observation[] = [];
   let error: string | null = null;
   let loading = true;
+  let submitting = false;
 
   // Form state
   let newVital = {
@@ -65,6 +66,7 @@
   async function handleSubmit() {
     if (!$authStore.patientId) return;
 
+    submitting = true;
     try {
       const selectedType = vitalTypes.find(t => t.id === newVital.type);
       if (!selectedType) {
@@ -117,7 +119,16 @@
     } catch (e) {
       console.error('Error adding vital:', e);
       error = e instanceof Error ? e.message : 'Failed to add vital';
+    } finally {
+      submitting = false;
     }
+  }
+
+  function handleSomeAction() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }
 </script>
 
@@ -186,9 +197,17 @@
       <div class="flex items-end">
         <button
           type="submit"
-          class="w-full bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark transition-colors"
+          class="w-full bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark transition-colors disabled:opacity-50"
+          disabled={submitting}
         >
-          Add Vital
+          {#if submitting}
+            <span class="flex items-center justify-center">
+              <span class="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></span>
+              Saving...
+            </span>
+          {:else}
+            Add Vital
+          {/if}
         </button>
       </div>
     </form>
@@ -262,7 +281,7 @@
           </table>
         </div>
         <div class="mt-4 text-right">
-          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
+          <button type="button" class="text-sm text-primary hover:text-primary-dark" on:click={handleSomeAction}>Back to top</button>
         </div>
       </div>
 
@@ -356,7 +375,7 @@
           </div>
         </div>
         <div class="mt-4 text-right">
-          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
+          <button type="button" class="text-sm text-primary hover:text-primary-dark" on:click={handleSomeAction}>Back to top</button>
         </div>
       </div>
 
@@ -401,7 +420,7 @@
           </table>
         </div>
         <div class="mt-4 text-right">
-          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
+          <button type="button" class="text-sm text-primary hover:text-primary-dark" on:click={handleSomeAction}>Back to top</button>
         </div>
       </div>
 
@@ -446,7 +465,7 @@
           </table>
         </div>
         <div class="mt-4 text-right">
-          <a href="#" class="text-sm text-primary hover:text-primary-dark">Back to top</a>
+          <button type="button" class="text-sm text-primary hover:text-primary-dark" on:click={handleSomeAction}>Back to top</button>
         </div>
       </div>
     </div>
