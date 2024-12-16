@@ -116,10 +116,10 @@
         {/if}
         <div class="flex-grow"></div>
         <button 
-          class="bg-secondary hover:bg-secondary-hover px-3 py-1 rounded text-sm"
+          class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
           on:click={handleLogout}
         >
-          Switch User
+          Switch Patient
         </button>
       </div>
     </div>

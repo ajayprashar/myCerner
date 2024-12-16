@@ -134,16 +134,15 @@ class VitalsService {
         ...observation,
         code: {
           coding: [{
-            system: 'https://fhir.cerner.com/ec2458f2-1e24-41c8-b71b-0e701af7583d/codeSet/72',
-            code: '703540',
-            display: 'Heart Rate',
-            userSelected: true
+            system: 'http://loinc.org',
+            code: '69000-8',
+            display: 'Heart rate --sitting'
           }],
-          text: 'Heart Rate'
+          text: 'Heart rate --sitting'
         },
         valueQuantity: {
           value: Number(vital.value?.toFixed(0)),
-          unit: '{beats}/min',
+          unit: 'bpm',
           system: 'http://unitsofmeasure.org',
           code: '{beats}/min'
         }
@@ -157,23 +156,19 @@ class VitalsService {
             code: '703537',
             display: 'Respiratory Rate',
             userSelected: true
+          },
+          {
+            system: 'http://loinc.org',
+            code: '9279-1',
+            display: 'Respiratory rate'
           }],
           text: 'Respiratory Rate'
         },
         valueQuantity: {
           value: Number(vital.value?.toFixed(0)),
-          unit: '/min',
+          unit: 'bpm',
           system: 'http://unitsofmeasure.org',
-          code: '/min',
-          extension: [{
-            url: 'http://hl7.org/fhir/StructureDefinition/iso21090-PQ-translation',
-            valueQuantity: {
-              value: Number(vital.value?.toFixed(0)),
-              unit: '/min',
-              system: 'http://unitsofmeasure.org',
-              code: '/min'
-            }
-          }]
+          code: '/min'
         }
       };
     } else if (vital.type === 'temperature') {
