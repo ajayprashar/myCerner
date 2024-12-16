@@ -2,9 +2,12 @@ export interface AuthState {
   isAuthenticated: boolean;
   accessToken: string | null;
   refreshToken: string | null;
+  idToken: string | null;
   error: string | null;
   expiresAt: number | null;
   patientId: string | null;
+  userId: string | null;
+  needPatientBanner: boolean;
 }
 
 export interface AuthService {

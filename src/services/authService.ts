@@ -105,7 +105,8 @@ class AuthService {
         tokenData.id_token,
         tokenData.expires_in,
         patientId,
-        tokenData.user
+        tokenData.user,
+        tokenData.need_patient_banner
       );
 
       if (patientId) {

@@ -8,11 +8,13 @@
   let error: string | null = null;
   let timeRemaining: string = '';
   let intervalId: number;
+  let showBanner: boolean = false;
 
   const CODE_CONSOLE_URL = 'https://code-console.cerner.com/console/details/34347926-e025-47d8-8a57-37a9046c32f2/52d68728-011e-46d8-9f37-0dcc2bc41bfc';
 
   onMount(async () => {
     console.log('TokenBanner mounted');
+    showBanner = $authStore.needPatientBanner ?? false;
     if ($authStore.patientId) {
       try {
         console.log('Fetching patient:', $authStore.patientId);
@@ -70,7 +72,7 @@
 <div class="bg-primary text-white py-2 px-4 shadow-md">
   <div class="container mx-auto">
     <div class="flex flex-col space-y-2">
-      {#if patient}
+      {#if patient && showBanner}
         <div class="flex justify-between items-center">
           <div class="flex items-center gap-4">
             <div>

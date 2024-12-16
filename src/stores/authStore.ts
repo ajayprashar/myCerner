@@ -10,6 +10,7 @@ interface AuthState {
   expiresAt: number | null;
   patientId: string | null;
   userId: string | null;
+  needPatientBanner: boolean;
 }
 
 function loadPersistedState(): AuthState {
@@ -29,7 +30,8 @@ function loadPersistedState(): AuthState {
     error: null,
     expiresAt: null,
     patientId: null,
-    userId: null
+    userId: null,
+    needPatientBanner: false
   };
 }
 
@@ -38,7 +40,7 @@ function createAuthStore() {
 
   return {
     subscribe,
-    setTokens: (accessToken: string, refreshToken: string, idToken: string, expiresIn: number, patientId: string, userId: string) => {
+    setTokens: (accessToken: string, refreshToken: string, idToken: string, expiresIn: number, patientId: string, userId: string, needPatientBanner: boolean) => {
       const expiresAt = new Date().getTime() + (expiresIn * 1000);
       const newState = {
         isAuthenticated: true,
@@ -48,6 +50,7 @@ function createAuthStore() {
         expiresAt,
         patientId,
         userId,
+        needPatientBanner,
         error: null
       };
       sessionStorage.setItem('authState', JSON.stringify(newState));
@@ -63,7 +66,8 @@ function createAuthStore() {
         error: null,
         expiresAt: null,
         patientId: null,
-        userId: null
+        userId: null,
+        needPatientBanner: false
       });
     },
     getAccessToken: async () => {
